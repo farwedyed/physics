@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Physics Visual Studio // Electric Current</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --surface: #141c2b;
+      --card: #1b263b;
+      --border: #2e3e5c;
+      --accent: #38bdf8;
+      --amber: #f59e0b;
+      --red: #f43f5e;
+      --green: #10b981;
+      --purple: #a855f7;
+      --text: #e2e8f0;
+      --muted: #8493a8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, "Courier New", monospace;
+      padding: 16px 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Top Pyramids Bar */
+    .pyramids-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .pyramid-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    .pyramid-title {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .triangle-box {
+      width: 90px;
+      height: 65px;
+      border: 2px solid var(--accent);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      background: rgba(56, 189, 248, 0.08);
+      position: relative;
+    }
+
+    .tri-top {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: bold;
+      color: var(--amber);
+      font-size: 0.95rem;
+    }
+
+    .tri-divider {
+      position: absolute;
+      top: 40px;
+      left: 15%;
+      width: 70%;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .tri-bottom {
+      position: absolute;
+      bottom: 6px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    /* Mode Navigation Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--card);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Simulation Viewport */
+    .viewport {
+      background: #06080d;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 230px;
+    }
+
+    /* Metrics Bar */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .metric-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .metric-name { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
+    .metric-value { font-size: 1.15rem; font-weight: bold; margin-top: 2px; }
+
+    /* Controls Panel */
+    .control-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .radio-label {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      canvas { height: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>Electric Physics Studio</h1>
+    <div class="subtitle">// Interactive field simulator & formula breakdown for 3rd Secondary</div>
+  </header>
+
+  <!-- 3 Fundamental Magic Pyramids -->
+  <div class="pyramids-grid">
+    <!-- Triangle 1: Ohm's Law -->
+    <div class="pyramid-card">
+      <div class="pyramid-title">Ohm's Law</div>
+      <div class="triangle-box">
+        <div class="tri-top">V</div>
+        <div class="tri-divider"></div>
+        <div class="tri-bottom">
+          <span style="color:var(--green)">I</span>
+          <span style="color:var(--red)">R</span>
+        </div>
+      </div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:6px;">V = I · R</div>
+    </div>
+
+    <!-- Triangle 2: Current Definition -->
+    <div class="pyramid-card">
+      <div class="pyramid-title">Charge & Current</div>
+      <div class="triangle-box">
+        <div class="tri-top" style="color:var(--purple)">Q</div>
+        <div class="tri-divider"></div>
+        <div class="tri-bottom">
+          <span style="color:var(--green)">I</span>
+          <span>t</span>
+        </div>
+      </div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:6px;">Q = n · e = I · t</div>
+    </div>
+
+    <!-- Triangle 3: Potential Work -->
+    <div class="pyramid-card">
+      <div class="pyramid-title">Electric Work</div>
+      <div class="triangle-box">
+        <div class="tri-top" style="color:#38bdf8">W</div>
+        <div class="tri-divider"></div>
+        <div class="tri-bottom">
+          <span style="color:var(--amber)">V</span>
+          <span style="color:var(--purple)">Q</span>
+        </div>
+      </div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:6px;">W = V · Q</div>
+    </div>
+
+    <!-- Conductor Rule Box -->
+    <div class="pyramid-card" style="justify-content: center;">
+      <div class="pyramid-title">Wire Specs</div>
+      <div style="font-size:1.1rem; font-weight:bold; color:var(--red); margin: 6px 0;">
+        R = ρₑ · <span style="font-size:1.3rem;">(L / A)</span>
+      </div>
+      <div style="font-size:0.7rem; color:var(--muted); text-align:center;">
+        L ↑ ⟶ R ↑<br>A ↑ ⟶ R ↓
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tabOhm">Mode 1: Direct Ohm's Law (V & R)</button>
+    <button class="tab-btn" id="tabWire">Mode 2: Wire Geometry (L & A)</button>
+  </div>
+
+  <!-- Canvas Simulation Viewport -->
+  <div class="viewport">
+    <canvas id="simCanvas" width="860" height="240"></canvas>
+  </div>
+
+  <!-- Realtime Metrics -->
+  <div class="metrics">
+    <div class="metric-box">
+      <div class="metric-name">Voltage (V)</div>
+      <div class="metric-value" id="valV" style="color:var(--amber);">12 V</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-name">Resistance (R)</div>
+      <div class="metric-value" id="valR" style="color:var(--red);">4.0 Ω</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-name">Current (I = V/R)</div>
+      <div class="metric-value" id="valI" style="color:var(--green);">3.00 A</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-name">Electrons / Sec</div>
+      <div class="metric-value" id="valN" style="color:var(--purple);">1.9 × 10¹⁹</div>
+    </div>
+  </div>
+
+  <!-- Dynamic Control Panel based on Tab -->
+  <div class="control-panel" id="panelOhm">
+    <div class="slider-row">
+      <div class="slider-header">
+        <span>BATTERY VOLTAGE (V)</span>
+        <span style="color:var(--amber);" id="txtOhmV">12 V</span>
+      </div>
+      <input type="range" id="slOhmV" min="1" max="120" value="12">
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span>RESISTANCE (R) [Choke & Obstacles]</span>
+        <span style="color:var(--red);" id="txtOhmR">4.0 Ω</span>
+      </div>
+      <!-- Crank up to 100 Ohms as requested! -->
+      <input type="range" id="slOhmR" min="0.5" max="100" step="0.5" value="4">
+    </div>
+  </div>
+
+  <div class="control-panel" id="panelWire" style="display:none;">
+    <div class="slider-row">
+      <div class="slider-header">
+        <span>WIRE LENGTH (L)</span>
+        <span style="color:var(--accent);" id="txtWireL">20 m</span>
+      </div>
+      <input type="range" id="slWireL" min="2" max="100" value="20">
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span>CROSS-SECTION AREA (A)</span>
+        <span style="color:var(--green);" id="txtWireA">2.0 mm²</span>
+      </div>
+      <input type="range" id="slWireA" min="0.5" max="8.0" step="0.5" value="2.0">
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span>MATERIAL RESISTIVITY (ρₑ)</span>
+      </div>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="mat" value="1.7e-8" checked> Copper (Low R)
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="mat" value="10e-8"> Iron (Medium R)
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="mat" value="100e-8"> Nichrome (High R)
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('simCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Tabs
+  const tabOhm = document.getElementById('tabOhm');
+  const tabWire = document.getElementById('tabWire');
+  const panelOhm = document.getElementById('panelOhm');
+  const panelWire = document.getElementById('panelWire');
+
+  let currentMode = 'ohm'; // 'ohm' or 'wire'
+
+  tabOhm.addEventListener('click', () => {
+    currentMode = 'ohm';
+    tabOhm.classList.add('active');
+    tabWire.classList.remove('active');
+    panelOhm.style.display = 'flex';
+    panelWire.style.display = 'none';
+  });
+
+  tabWire.addEventListener('click', () => {
+    currentMode = 'wire';
+    tabWire.classList.add('active');
+    tabOhm.classList.remove('active');
+    panelWire.style.display = 'flex';
+    panelOhm.style.display = 'none';
+  });
+
+  // Controls & Metrics
+  const slOhmV = document.getElementById('slOhmV');
+  const slOhmR = document.getElementById('slOhmR');
+  const txtOhmV = document.getElementById('txtOhmV');
+  const txtOhmR = document.getElementById('txtOhmR');
+
+  const slWireL = document.getElementById('slWireL');
+  const slWireA = document.getElementById('slWireA');
+  const txtWireL = document.getElementById('txtWireL');
+  const txtWireA = document.getElementById('txtWireA');
+
+  const valV = document.getElementById('valV');
+  const valR = document.getElementById('valR');
+  const valI = document.getElementById('valI');
+  const valN = document.getElementById('valN');
+
+  const eCharge = 1.6e-19;
+
+  // Electrons pool
+  const electrons = [];
+  for (let i = 0; i < 80; i++) {
+    electrons.push({
+      x: Math.random() * canvas.width,
+      yFrac: Math.random(),
+      vy: (Math.random() - 0.5) * 1.5,
+      r: 3.5
+    });
+  }
+
+  function render() {
+    let V, R, I, L_vis = 1.0, A_vis = 1.0;
+
+    if (currentMode === 'ohm') {
+      V = parseFloat(slOhmV.value);
+      R = parseFloat(slOhmR.value);
+      txtOhmV.textContent = V + ' V';
+      txtOhmR.textContent = R.toFixed(1) + ' Ω';
+    } else {
+      const L = parseFloat(slWireL.value);
+      const A_mm2 = parseFloat(slWireA.value);
+      const A = A_mm2 * 1e-6;
+      const rho = parseFloat(document.querySelector('input[name="mat"]:checked').value);
+
+      R = rho * (L / A);
+      V = 12; // Standard 12V supply for wire lab
+      L_vis = L / 50;
+      A_vis = A_mm2 / 4;
+
+      txtWireL.textContent = L + ' m';
+      txtWireA.textContent = A_mm2.toFixed(1) + ' mm²';
+    }
+
+    I = V / R;
+    const n = I / eCharge;
+
+    // Update Telemetry
+    valV.textContent = V.toFixed(0) + ' V';
+    valR.textContent = R < 1 ? R.toFixed(2) + ' Ω' : R.toFixed(1) + ' Ω';
+    valI.textContent = I < 1 ? I.toFixed(3) + ' A' : I.toFixed(2) + ' A';
+    valN.textContent = (n / 1e19).toFixed(1) + ' × 10¹⁹';
+
+    // Clear Screen
+    ctx.fillStyle = '#06080d';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Conductor Tube Geometry
+    let tubeHeight = 110;
+    if (currentMode === 'wire') {
+      tubeHeight = Math.max(50, Math.min(190, 70 * A_vis + 40));
+    }
+    const topY = (canvas.height - tubeHeight) / 2;
+    const botY = topY + tubeHeight;
+
+    // Tube background & borders
+    ctx.fillStyle = '#111726';
+    ctx.fillRect(20, topY, canvas.width - 40, tubeHeight);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(20, topY - 4, canvas.width - 40, 4);
+    ctx.fillRect(20, botY, canvas.width - 40, 4);
+
+    // Cross section line
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, topY);
+    ctx.lineTo(canvas.width / 2, botY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw Obstacle Atoms (Resistance)
+    // When R is high, we pack tons of vibrating red atoms!
+    let obstacleCols = Math.min(24, Math.max(4, Math.floor(R * 0.4 + 4)));
+    let obstacleRows = Math.min(6, Math.max(2, Math.floor(tubeHeight / 26)));
+
+    ctx.fillStyle = '#f43f5e';
+    const jitterAmount = Math.min(3.5, R * 0.08);
+
+    for (let c = 0; c < obstacleCols; c++) {
+      for (let r = 0; r < obstacleRows; r++) {
+        const ox = 50 + c * ((canvas.width - 100) / (obstacleCols - 1 || 1));
+        const oy = topY + 16 + r * ((tubeHeight - 32) / (obstacleRows - 1 || 1));
+        const jx = (Math.random() - 0.5) * jitterAmount;
+        const jy = (Math.random() - 0.5) * jitterAmount;
+
+        ctx.beginPath();
+        ctx.arc(ox + jx, oy + jy, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Drift Speed directly tied to Current I
+    // If R=100 and V=12, I=0.12A -> speed is very slow. If I=50A -> speed is fast.
+    const driftSpeed = Math.min(10, Math.max(0.2, I * 0.7));
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 5;
+
+    electrons.forEach(e => {
+      e.x += driftSpeed;
+      if (e.x > canvas.width - 24) {
+        e.x = 24;
+        e.yFrac = Math.random();
+      }
+
+      const curY = topY + 10 + e.yFrac * (tubeHeight - 20);
+      ctx.beginPath();
+      ctx.arc(e.x, curY, e.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.shadowBlur = 0; // reset
+    requestAnimationFrame(render);
+  }
+
+  // Input listeners
+  ['input', 'change'].forEach(evt => {
+    slOhmV.addEventListener(evt, () => {});
+    slOhmR.addEventListener(evt, () => {});
+    slWireL.addEventListener(evt, () => {});
+    slWireA.addEventListener(evt, () => {});
+    document.querySelectorAll('input[name="mat"]').forEach(r => r.addEventListener(evt, () => {}));
+  });
+
+  render();
+</script>
+</body>
+</html>
