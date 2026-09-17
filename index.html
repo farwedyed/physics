@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Physics Visual Studio // Electric Current</title>
+  <title>Physics Visual Studio // Electric Current & Circuit Topologies</title>
   <style>
     :root {
       --bg: #0b0f17;
@@ -17,6 +17,7 @@
       --purple: #a855f7;
       --text: #e2e8f0;
       --muted: #8493a8;
+      --wire: #334155;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -32,7 +33,7 @@
 
     .app {
       width: 100%;
-      max-width: 860px;
+      max-width: 920px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -56,10 +57,10 @@
       margin-top: 4px;
     }
 
-    /* Top Pyramids Bar */
+    /* Top Reference Bar */
     .pyramids-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
       gap: 10px;
     }
 
@@ -129,20 +130,23 @@
       padding: 4px;
       border-radius: 8px;
       border: 1px solid var(--border);
+      flex-wrap: wrap;
     }
 
     .tab-btn {
       flex: 1;
+      min-width: 180px;
       background: transparent;
       border: none;
       color: var(--muted);
       padding: 10px;
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: bold;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
+      text-align: center;
     }
 
     .tab-btn.active {
@@ -164,7 +168,7 @@
     canvas {
       display: block;
       width: 100%;
-      height: 230px;
+      height: 270px;
     }
 
     /* Metrics Bar */
@@ -232,9 +236,100 @@
       cursor: pointer;
     }
 
-    @media (max-width: 600px) {
+    /* Topology Mode 3 UI Elements */
+    .topology-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .pill-btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .pill-btn {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .pill-btn.active {
+      background: var(--accent);
+      color: #04101d;
+      border-color: var(--accent);
+    }
+
+    .rule-banner {
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px dashed var(--accent);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .teacher-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 3px solid var(--green);
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      border-radius: 0 6px 6px 0;
+      color: #cbd5e1;
+    }
+
+    .switch-toggle-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .switch-btn {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .switch-btn.open {
+      border-color: var(--red);
+      color: var(--red);
+      background: rgba(244, 63, 94, 0.1);
+    }
+
+    .led-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .led-dot.off {
+      background: var(--red);
+      box-shadow: none;
+    }
+
+    @media (max-width: 650px) {
       .metrics { grid-template-columns: repeat(2, 1fr); }
-      canvas { height: 180px; }
+      canvas { height: 230px; }
     }
   </style>
 </head>
@@ -243,10 +338,10 @@
 <div class="app">
   <header>
     <h1>Electric Physics Studio</h1>
-    <div class="subtitle">// Interactive field simulator & formula breakdown for 3rd Secondary</div>
+    <div class="subtitle">// Thanaweya Amma interactive laboratory: Current, Wire Geometry, Series & Parallel</div>
   </header>
 
-  <!-- 3 Fundamental Magic Pyramids -->
+  <!-- Fundamental Quick Formulas Reference -->
   <div class="pyramids-grid">
     <!-- Triangle 1: Ohm's Law -->
     <div class="pyramid-card">
@@ -262,79 +357,82 @@
       <div style="font-size:0.7rem; color:var(--muted); margin-top:6px;">V = I · R</div>
     </div>
 
-    <!-- Triangle 2: Current Definition -->
+    <!-- Triangle 2: Series Rules -->
     <div class="pyramid-card">
-      <div class="pyramid-title">Charge & Current</div>
-      <div class="triangle-box">
-        <div class="tri-top" style="color:var(--purple)">Q</div>
-        <div class="tri-divider"></div>
-        <div class="tri-bottom">
-          <span style="color:var(--green)">I</span>
-          <span>t</span>
-        </div>
+      <div class="pyramid-title">Series (1 Single Path)</div>
+      <div style="font-size:0.85rem; font-weight:bold; color:var(--green); margin-top:6px;">
+        I = Constant
       </div>
-      <div style="font-size:0.7rem; color:var(--muted); margin-top:6px;">Q = n · e = I · t</div>
+      <div style="font-size:0.75rem; color:var(--amber); margin-top:4px;">
+        V_tot = V₁ + V₂
+      </div>
+      <div style="font-size:0.75rem; color:var(--red); margin-top:2px;">
+        R_eq = R₁ + R₂
+      </div>
+      <div style="font-size:0.65rem; color:var(--muted); margin-top:4px;">R always increases</div>
     </div>
 
-    <!-- Triangle 3: Potential Work -->
+    <!-- Triangle 3: Parallel Rules -->
     <div class="pyramid-card">
-      <div class="pyramid-title">Electric Work</div>
-      <div class="triangle-box">
-        <div class="tri-top" style="color:#38bdf8">W</div>
-        <div class="tri-divider"></div>
-        <div class="tri-bottom">
-          <span style="color:var(--amber)">V</span>
-          <span style="color:var(--purple)">Q</span>
-        </div>
+      <div class="pyramid-title">Parallel (Branching)</div>
+      <div style="font-size:0.85rem; font-weight:bold; color:var(--amber); margin-top:6px;">
+        V = Constant
       </div>
-      <div style="font-size:0.7rem; color:var(--muted); margin-top:6px;">W = V · Q</div>
+      <div style="font-size:0.75rem; color:var(--green); margin-top:4px;">
+        I_tot = I₁ + I₂
+      </div>
+      <div style="font-size:0.75rem; color:var(--red); margin-top:2px;">
+        R_eq = (R₁·R₂)/(R₁+R₂)
+      </div>
+      <div style="font-size:0.65rem; color:var(--muted); margin-top:4px;">R_eq < smaller branch</div>
     </div>
 
-    <!-- Conductor Rule Box -->
+    <!-- Wire Specs -->
     <div class="pyramid-card" style="justify-content: center;">
-      <div class="pyramid-title">Wire Specs</div>
-      <div style="font-size:1.1rem; font-weight:bold; color:var(--red); margin: 6px 0;">
-        R = ρₑ · <span style="font-size:1.3rem;">(L / A)</span>
+      <div class="pyramid-title">Conductor Rule</div>
+      <div style="font-size:0.95rem; font-weight:bold; color:var(--accent); margin: 4px 0;">
+        R = ρₑ · (L / A)
       </div>
-      <div style="font-size:0.7rem; color:var(--muted); text-align:center;">
-        L ↑ ⟶ R ↑<br>A ↑ ⟶ R ↓
+      <div style="font-size:0.68rem; color:var(--muted); text-align:center;">
+        L ↑ ⟶ R ↑ | A ↑ ⟶ R ↓
       </div>
     </div>
   </div>
 
-  <!-- Mode Tabs -->
+  <!-- Mode Selection Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" id="tabOhm">Mode 1: Direct Ohm's Law (V & R)</button>
+    <button class="tab-btn" id="tabOhm">Mode 1: Ohm's Law (Microscopic)</button>
     <button class="tab-btn" id="tabWire">Mode 2: Wire Geometry (L & A)</button>
+    <button class="tab-btn active" id="tabTopology">Mode 3: Series vs Parallel Lab</button>
   </div>
 
-  <!-- Canvas Simulation Viewport -->
+  <!-- Interactive Canvas Simulation -->
   <div class="viewport">
-    <canvas id="simCanvas" width="860" height="240"></canvas>
+    <canvas id="simCanvas" width="900" height="270"></canvas>
   </div>
 
-  <!-- Realtime Metrics -->
-  <div class="metrics">
+  <!-- Dynamic Realtime Metrics -->
+  <div class="metrics" id="metricsContainer">
     <div class="metric-box">
-      <div class="metric-name">Voltage (V)</div>
-      <div class="metric-value" id="valV" style="color:var(--amber);">12 V</div>
+      <div class="metric-name" id="labelM1">Voltage Supply (V)</div>
+      <div class="metric-value" id="val1" style="color:var(--amber);">220 V</div>
     </div>
     <div class="metric-box">
-      <div class="metric-name">Resistance (R)</div>
-      <div class="metric-value" id="valR" style="color:var(--red);">4.0 Ω</div>
+      <div class="metric-name" id="labelM2">Equivalent Resistance (Req)</div>
+      <div class="metric-value" id="val2" style="color:var(--red);">20.0 Ω</div>
     </div>
     <div class="metric-box">
-      <div class="metric-name">Current (I = V/R)</div>
-      <div class="metric-value" id="valI" style="color:var(--green);">3.00 A</div>
+      <div class="metric-name" id="labelM3">Total Current (Itotal)</div>
+      <div class="metric-value" id="val3" style="color:var(--green);">11.0 A</div>
     </div>
     <div class="metric-box">
-      <div class="metric-name">Electrons / Sec</div>
-      <div class="metric-value" id="valN" style="color:var(--purple);">1.9 × 10¹⁹</div>
+      <div class="metric-name" id="labelM4">Total Power Consumption</div>
+      <div class="metric-value" id="val4" style="color:var(--purple);">2420 W</div>
     </div>
   </div>
 
-  <!-- Dynamic Control Panel based on Tab -->
-  <div class="control-panel" id="panelOhm">
+  <!-- PANEL 1: OHM DIRECT -->
+  <div class="control-panel" id="panelOhm" style="display:none;">
     <div class="slider-row">
       <div class="slider-header">
         <span>BATTERY VOLTAGE (V)</span>
@@ -342,17 +440,16 @@
       </div>
       <input type="range" id="slOhmV" min="1" max="120" value="12">
     </div>
-
     <div class="slider-row">
       <div class="slider-header">
-        <span>RESISTANCE (R) [Choke & Obstacles]</span>
+        <span>RESISTANCE (R) [Atomic Collisions]</span>
         <span style="color:var(--red);" id="txtOhmR">4.0 Ω</span>
       </div>
-      <!-- Crank up to 100 Ohms as requested! -->
       <input type="range" id="slOhmR" min="0.5" max="100" step="0.5" value="4">
     </div>
   </div>
 
+  <!-- PANEL 2: WIRE GEOMETRY -->
   <div class="control-panel" id="panelWire" style="display:none;">
     <div class="slider-row">
       <div class="slider-header">
@@ -361,7 +458,6 @@
       </div>
       <input type="range" id="slWireL" min="2" max="100" value="20">
     </div>
-
     <div class="slider-row">
       <div class="slider-header">
         <span>CROSS-SECTION AREA (A)</span>
@@ -369,22 +465,86 @@
       </div>
       <input type="range" id="slWireA" min="0.5" max="8.0" step="0.5" value="2.0">
     </div>
-
     <div class="slider-row">
       <div class="slider-header">
         <span>MATERIAL RESISTIVITY (ρₑ)</span>
       </div>
       <div class="radio-group">
-        <label class="radio-label">
-          <input type="radio" name="mat" value="1.7e-8" checked> Copper (Low R)
-        </label>
-        <label class="radio-label">
-          <input type="radio" name="mat" value="10e-8"> Iron (Medium R)
-        </label>
-        <label class="radio-label">
-          <input type="radio" name="mat" value="100e-8"> Nichrome (High R)
-        </label>
+        <label class="radio-label"><input type="radio" name="mat" value="1.7e-8" checked> Copper</label>
+        <label class="radio-label"><input type="radio" name="mat" value="10e-8"> Iron</label>
+        <label class="radio-label"><input type="radio" name="mat" value="100e-8"> Nichrome</label>
       </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: TOPOLOGY (SERIES VS PARALLEL) -->
+  <div class="control-panel" id="panelTopology">
+    <div class="topology-header-row">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:0.8rem; font-weight:bold; color:var(--muted);">CIRCUIT CONFIG:</span>
+        <div class="pill-btn-group">
+          <button class="pill-btn active" id="btnModeSeries">Series</button>
+          <button class="pill-btn" id="btnModeParallel">Parallel</button>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:0.8rem; font-weight:bold; color:var(--muted);">LOAD TYPE:</span>
+        <div class="pill-btn-group">
+          <button class="pill-btn active" id="btnViewResistors">Standard Resistors (Ω)</button>
+          <button class="pill-btn" id="btnViewAppliances">Home Appliances 📺 🧊</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Formula Breakdown Box -->
+    <div class="rule-banner" id="topoRuleBanner">
+      <!-- Injected via JS -->
+    </div>
+
+    <!-- Switches row to test turning off 1 device -->
+    <div class="switch-toggle-row">
+      <button class="switch-btn" id="btnSw1">
+        <span class="led-dot" id="led1"></span>
+        <span id="txtSw1">Branch 1 Switch: CLOSED (Active)</span>
+      </button>
+      <button class="switch-btn" id="btnSw2">
+        <span class="led-dot" id="led2"></span>
+        <span id="txtSw2">Branch 2 Switch: CLOSED (Active)</span>
+      </button>
+    </div>
+
+    <!-- Sliders for Topo Mode -->
+    <div class="slider-row">
+      <div class="slider-header">
+        <span>POWER SUPPLY VOLTAGE (V_source)</span>
+        <span style="color:var(--amber);" id="txtTopoV">220 V</span>
+      </div>
+      <input type="range" id="slTopoV" min="10" max="240" step="5" value="220">
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span id="labelR1">DEVICE 1 / RESISTOR 1 (R₁)</span>
+        <span style="color:var(--accent);" id="txtTopoR1">30 Ω</span>
+      </div>
+      <input type="range" id="slTopoR1" min="5" max="100" step="5" value="30">
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span id="labelR2">DEVICE 2 / RESISTOR 2 (R₂)</span>
+        <span style="color:var(--purple);" id="txtTopoR2">60 Ω</span>
+      </div>
+      <input type="range" id="slTopoR2" min="5" max="100" step="5" value="60">
+    </div>
+
+    <!-- High-yield Thanaweya Amma Exam Tip -->
+    <div class="teacher-box">
+      <strong>Exam Gold // Why are home appliances connected in Parallel?</strong><br>
+      1. Every appliance gets the full rated voltage (<span style="color:var(--amber);">220 V</span>).<br>
+      2. Each device operates independently on its own switch (if TV turns off, Refrigerator stays running).<br>
+      3. Adding more parallel branches <strong>reduces</strong> total circuit resistance ($R_{eq}$), so each branch draws current without choking the others!
     </div>
   </div>
 </div>
@@ -393,31 +553,68 @@
   const canvas = document.getElementById('simCanvas');
   const ctx = canvas.getContext('2d');
 
-  // Tabs
+  // Mode Selection
+  let currentTab = 'topology'; // 'ohm', 'wire', 'topology'
+
   const tabOhm = document.getElementById('tabOhm');
   const tabWire = document.getElementById('tabWire');
+  const tabTopology = document.getElementById('tabTopology');
+
   const panelOhm = document.getElementById('panelOhm');
   const panelWire = document.getElementById('panelWire');
+  const panelTopology = document.getElementById('panelTopology');
 
-  let currentMode = 'ohm'; // 'ohm' or 'wire'
-
-  tabOhm.addEventListener('click', () => {
-    currentMode = 'ohm';
-    tabOhm.classList.add('active');
-    tabWire.classList.remove('active');
-    panelOhm.style.display = 'flex';
-    panelWire.style.display = 'none';
-  });
-
-  tabWire.addEventListener('click', () => {
-    currentMode = 'wire';
-    tabWire.classList.add('active');
-    tabOhm.classList.remove('active');
-    panelWire.style.display = 'flex';
+  function setTab(tab) {
+    currentTab = tab;
+    [tabOhm, tabWire, tabTopology].forEach(t => t.classList.remove('active'));
     panelOhm.style.display = 'none';
-  });
+    panelWire.style.display = 'none';
+    panelTopology.style.display = 'none';
 
-  // Controls & Metrics
+    if (tab === 'ohm') {
+      tabOhm.classList.add('active');
+      panelOhm.style.display = 'flex';
+      setupMetricsLabelsOhm();
+    } else if (tab === 'wire') {
+      tabWire.classList.add('active');
+      panelWire.style.display = 'flex';
+      setupMetricsLabelsOhm();
+    } else {
+      tabTopology.classList.add('active');
+      panelTopology.style.display = 'flex';
+      setupMetricsLabelsTopo();
+    }
+  }
+
+  tabOhm.addEventListener('click', () => setTab('ohm'));
+  tabWire.addEventListener('click', () => setTab('wire'));
+  tabTopology.addEventListener('click', () => setTab('topology'));
+
+  // Metrics Elements
+  const labelM1 = document.getElementById('labelM1');
+  const labelM2 = document.getElementById('labelM2');
+  const labelM3 = document.getElementById('labelM3');
+  const labelM4 = document.getElementById('labelM4');
+  const val1 = document.getElementById('val1');
+  const val2 = document.getElementById('val2');
+  const val3 = document.getElementById('val3');
+  const val4 = document.getElementById('val4');
+
+  function setupMetricsLabelsOhm() {
+    labelM1.textContent = 'VOLTAGE (V)';
+    labelM2.textContent = 'RESISTANCE (R)';
+    labelM3.textContent = 'CURRENT (I = V/R)';
+    labelM4.textContent = 'ELECTRONS / SEC';
+  }
+
+  function setupMetricsLabelsTopo() {
+    labelM1.textContent = 'VOLTAGE SUPPLY (V)';
+    labelM2.textContent = 'EQUIV. RESISTANCE (Req)';
+    labelM3.textContent = 'TOTAL CURRENT (Itotal)';
+    labelM4.textContent = 'TOTAL POWER DISSIPATION';
+  }
+
+  // Ohm & Wire Inputs
   const slOhmV = document.getElementById('slOhmV');
   const slOhmR = document.getElementById('slOhmR');
   const txtOhmV = document.getElementById('txtOhmV');
@@ -428,28 +625,116 @@
   const txtWireL = document.getElementById('txtWireL');
   const txtWireA = document.getElementById('txtWireA');
 
-  const valV = document.getElementById('valV');
-  const valR = document.getElementById('valR');
-  const valI = document.getElementById('valI');
-  const valN = document.getElementById('valN');
+  // Mode 3 Topology State & Controls
+  let topoType = 'parallel'; // 'series' or 'parallel'
+  let viewMode = 'appliances'; // 'resistors' or 'appliances'
+  let sw1Closed = true;
+  let sw2Closed = true;
 
+  const btnModeSeries = document.getElementById('btnModeSeries');
+  const btnModeParallel = document.getElementById('btnModeParallel');
+  const btnViewResistors = document.getElementById('btnViewResistors');
+  const btnViewAppliances = document.getElementById('btnViewAppliances');
+
+  const btnSw1 = document.getElementById('btnSw1');
+  const btnSw2 = document.getElementById('btnSw2');
+  const led1 = document.getElementById('led1');
+  const led2 = document.getElementById('led2');
+  const txtSw1 = document.getElementById('txtSw1');
+  const txtSw2 = document.getElementById('txtSw2');
+
+  const slTopoV = document.getElementById('slTopoV');
+  const slTopoR1 = document.getElementById('slTopoR1');
+  const slTopoR2 = document.getElementById('slTopoR2');
+  const txtTopoV = document.getElementById('txtTopoV');
+  const txtTopoR1 = document.getElementById('txtTopoR1');
+  const txtTopoR2 = document.getElementById('txtTopoR2');
+  const labelR1 = document.getElementById('labelR1');
+  const labelR2 = document.getElementById('labelR2');
+  const topoRuleBanner = document.getElementById('topoRuleBanner');
+
+  btnModeSeries.addEventListener('click', () => {
+    topoType = 'series';
+    btnModeSeries.classList.add('active');
+    btnModeParallel.classList.remove('active');
+  });
+
+  btnModeParallel.addEventListener('click', () => {
+    topoType = 'parallel';
+    btnModeParallel.classList.add('active');
+    btnModeSeries.classList.remove('active');
+  });
+
+  btnViewResistors.addEventListener('click', () => {
+    viewMode = 'resistors';
+    btnViewResistors.classList.add('active');
+    btnViewAppliances.classList.remove('active');
+    labelR1.textContent = 'RESISTOR 1 (R₁)';
+    labelR2.textContent = 'RESISTOR 2 (R₂)';
+  });
+
+  btnViewAppliances.addEventListener('click', () => {
+    viewMode = 'appliances';
+    btnViewAppliances.classList.add('active');
+    btnViewResistors.classList.remove('active');
+    labelR1.textContent = 'APPLIANCE 1 (📺 Smart OLED TV)';
+    labelR2.textContent = 'APPLIANCE 2 (🧊 Inverter Fridge)';
+  });
+
+  btnSw1.addEventListener('click', () => {
+    sw1Closed = !sw1Closed;
+    btnSw1.classList.toggle('open', !sw1Closed);
+    led1.classList.toggle('off', !sw1Closed);
+    txtSw1.textContent = (viewMode === 'appliances' ? 'TV' : 'Branch 1') + (sw1Closed ? ' Switch: CLOSED (ON)' : ' Switch: OPEN (DISCONNECTED)');
+  });
+
+  btnSw2.addEventListener('click', () => {
+    sw2Closed = !sw2Closed;
+    btnSw2.classList.toggle('open', !sw2Closed);
+    led2.classList.toggle('off', !sw2Closed);
+    txtSw2.textContent = (viewMode === 'appliances' ? 'Fridge' : 'Branch 2') + (sw2Closed ? ' Switch: CLOSED (ON)' : ' Switch: OPEN (DISCONNECTED)');
+  });
+
+  // Particle System Pool (Electrons)
   const eCharge = 1.6e-19;
-
-  // Electrons pool
-  const electrons = [];
-  for (let i = 0; i < 80; i++) {
-    electrons.push({
-      x: Math.random() * canvas.width,
+  const electronsMode1 = [];
+  for (let i = 0; i < 70; i++) {
+    electronsMode1.push({
+      x: Math.random() * 900,
       yFrac: Math.random(),
-      vy: (Math.random() - 0.5) * 1.5,
       r: 3.5
     });
   }
 
-  function render() {
-    let V, R, I, L_vis = 1.0, A_vis = 1.0;
+  // Mode 3 Topology Particle Trackers (0.0 to 1.0 progress along circuit loop)
+  const topoParticles = [];
+  for (let i = 0; i < 90; i++) {
+    topoParticles.push({
+      t: Math.random(),
+      branch: Math.random() > 0.5 ? 1 : 2, // for parallel branching
+      speedOffset: 0.9 + Math.random() * 0.2
+    });
+  }
 
-    if (currentMode === 'ohm') {
+  // Main Render Loop
+  function render() {
+    ctx.fillStyle = '#06080d';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (currentTab === 'ohm' || currentTab === 'wire') {
+      renderMicroscopicModes();
+    } else {
+      renderTopologyMode();
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  // RENDER MODES 1 & 2
+  function renderMicroscopicModes() {
+    let V, R, I, A_vis = 1.0;
+
+    if (currentTab === 'ohm') {
       V = parseFloat(slOhmV.value);
       R = parseFloat(slOhmR.value);
       txtOhmV.textContent = V + ' V';
@@ -461,8 +746,7 @@
       const rho = parseFloat(document.querySelector('input[name="mat"]:checked').value);
 
       R = rho * (L / A);
-      V = 12; // Standard 12V supply for wire lab
-      L_vis = L / 50;
+      V = 12;
       A_vis = A_mm2 / 4;
 
       txtWireL.textContent = L + ' m';
@@ -472,96 +756,501 @@
     I = V / R;
     const n = I / eCharge;
 
-    // Update Telemetry
-    valV.textContent = V.toFixed(0) + ' V';
-    valR.textContent = R < 1 ? R.toFixed(2) + ' Ω' : R.toFixed(1) + ' Ω';
-    valI.textContent = I < 1 ? I.toFixed(3) + ' A' : I.toFixed(2) + ' A';
-    valN.textContent = (n / 1e19).toFixed(1) + ' × 10¹⁹';
+    val1.textContent = V.toFixed(0) + ' V';
+    val2.textContent = R < 1 ? R.toFixed(2) + ' Ω' : R.toFixed(1) + ' Ω';
+    val3.textContent = I < 1 ? I.toFixed(3) + ' A' : I.toFixed(2) + ' A';
+    val4.textContent = (n / 1e19).toFixed(1) + ' × 10¹⁹ e⁻/s';
 
-    // Clear Screen
-    ctx.fillStyle = '#06080d';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Conductor Tube Geometry
-    let tubeHeight = 110;
-    if (currentMode === 'wire') {
-      tubeHeight = Math.max(50, Math.min(190, 70 * A_vis + 40));
-    }
+    let tubeHeight = currentTab === 'wire' ? Math.max(50, Math.min(200, 70 * A_vis + 40)) : 120;
     const topY = (canvas.height - tubeHeight) / 2;
     const botY = topY + tubeHeight;
 
-    // Tube background & borders
     ctx.fillStyle = '#111726';
-    ctx.fillRect(20, topY, canvas.width - 40, tubeHeight);
+    ctx.fillRect(30, topY, canvas.width - 60, tubeHeight);
 
     ctx.fillStyle = '#f59e0b';
-    ctx.fillRect(20, topY - 4, canvas.width - 40, 4);
-    ctx.fillRect(20, botY, canvas.width - 40, 4);
+    ctx.fillRect(30, topY - 4, canvas.width - 60, 4);
+    ctx.fillRect(30, botY, canvas.width - 60, 4);
 
-    // Cross section line
-    ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, topY);
-    ctx.lineTo(canvas.width / 2, botY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw Obstacle Atoms (Resistance)
-    // When R is high, we pack tons of vibrating red atoms!
     let obstacleCols = Math.min(24, Math.max(4, Math.floor(R * 0.4 + 4)));
     let obstacleRows = Math.min(6, Math.max(2, Math.floor(tubeHeight / 26)));
 
     ctx.fillStyle = '#f43f5e';
-    const jitterAmount = Math.min(3.5, R * 0.08);
+    const jitter = Math.min(3.5, R * 0.08);
 
     for (let c = 0; c < obstacleCols; c++) {
       for (let r = 0; r < obstacleRows; r++) {
         const ox = 50 + c * ((canvas.width - 100) / (obstacleCols - 1 || 1));
         const oy = topY + 16 + r * ((tubeHeight - 32) / (obstacleRows - 1 || 1));
-        const jx = (Math.random() - 0.5) * jitterAmount;
-        const jy = (Math.random() - 0.5) * jitterAmount;
-
         ctx.beginPath();
-        ctx.arc(ox + jx, oy + jy, 4.5, 0, Math.PI * 2);
+        ctx.arc(ox + (Math.random()-0.5)*jitter, oy + (Math.random()-0.5)*jitter, 4, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    // Drift Speed directly tied to Current I
-    // If R=100 and V=12, I=0.12A -> speed is very slow. If I=50A -> speed is fast.
-    const driftSpeed = Math.min(10, Math.max(0.2, I * 0.7));
-
+    const driftSpeed = Math.min(9, Math.max(0.2, I * 0.6));
     ctx.fillStyle = '#38bdf8';
     ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 5;
+    ctx.shadowBlur = 6;
 
-    electrons.forEach(e => {
+    electronsMode1.forEach(e => {
       e.x += driftSpeed;
-      if (e.x > canvas.width - 24) {
-        e.x = 24;
+      if (e.x > canvas.width - 35) {
+        e.x = 35;
         e.yFrac = Math.random();
       }
-
       const curY = topY + 10 + e.yFrac * (tubeHeight - 20);
       ctx.beginPath();
       ctx.arc(e.x, curY, e.r, 0, Math.PI * 2);
       ctx.fill();
     });
 
-    ctx.shadowBlur = 0; // reset
-    requestAnimationFrame(render);
+    ctx.shadowBlur = 0;
   }
 
-  // Input listeners
+  // RENDER MODE 3: CIRCUIT TOPOLOGY LAB
+  function renderTopologyMode() {
+    const V_source = parseFloat(slTopoV.value);
+    const R1 = parseFloat(slTopoR1.value);
+    const R2 = parseFloat(slTopoR2.value);
+
+    txtTopoV.textContent = V_source + ' V';
+    txtTopoR1.textContent = R1.toFixed(0) + ' Ω';
+    txtTopoR2.textContent = R2.toFixed(0) + ' Ω';
+
+    let Req = 0, Itotal = 0, I1 = 0, I2 = 0, V1 = 0, V2 = 0, Ptotal = 0;
+
+    if (topoType === 'series') {
+      // In Series, if ANY switch is OPEN, the whole circuit loop is dead!
+      const circuitClosed = sw1Closed && sw2Closed;
+      if (circuitClosed) {
+        Req = R1 + R2;
+        Itotal = V_source / Req;
+        I1 = Itotal;
+        I2 = Itotal;
+        V1 = I1 * R1;
+        V2 = I2 * R2;
+        Ptotal = V_source * Itotal;
+      } else {
+        Req = Infinity;
+        Itotal = 0;
+        I1 = 0;
+        I2 = 0;
+        V1 = 0;
+        V2 = 0;
+        Ptotal = 0;
+      }
+
+      // Live formula injection
+      topoRuleBanner.innerHTML = `
+        <span style="color:var(--accent); font-weight:bold;">[SERIES CONNECTION ENGINE]</span> 
+        &nbsp;|&nbsp; <strong>Req = R₁ + R₂</strong> = ${R1} + ${R2} = <span style="color:var(--red); font-weight:bold;">${circuitClosed ? Req.toFixed(1) + ' Ω' : '∞ (Broken Loop)'}</span><br>
+        • Current is Constant: <strong>Itotal = I₁ = I₂ = ${circuitClosed ? Itotal.toFixed(2) + ' A' : '0.00 A'}</strong><br>
+        • Voltage Divides: <strong>V₁ = ${circuitClosed ? V1.toFixed(1) + ' V' : '0 V'}</strong> | <strong>V₂ = ${circuitClosed ? V2.toFixed(1) + ' V' : '0 V'}</strong> (Sum = ${circuitClosed ? (V1+V2).toFixed(1) : 0} V)
+      `;
+    } else {
+      // Parallel mode
+      if (sw1Closed && sw2Closed) {
+        // Product over sum shortcut
+        Req = (R1 * R2) / (R1 + R2);
+        I1 = V_source / R1;
+        I2 = V_source / R2;
+        Itotal = I1 + I2;
+      } else if (sw1Closed && !sw2Closed) {
+        Req = R1;
+        I1 = V_source / R1;
+        I2 = 0;
+        Itotal = I1;
+      } else if (!sw1Closed && sw2Closed) {
+        Req = R2;
+        I1 = 0;
+        I2 = V_source / R2;
+        Itotal = I2;
+      } else {
+        Req = Infinity;
+        I1 = 0;
+        I2 = 0;
+        Itotal = 0;
+      }
+
+      V1 = sw1Closed ? V_source : 0;
+      V2 = sw2Closed ? V_source : 0;
+      Ptotal = (V1 * I1) + (V2 * I2);
+
+      const prodSumText = (sw1Closed && sw2Closed) 
+        ? `Req = (R₁·R₂)/(R₁+R₂) = (${R1}·${R2})/(${R1}+${R2}) = <span style="color:var(--red); font-weight:bold;">${Req.toFixed(2)} Ω</span>`
+        : `Req = <span style="color:var(--red); font-weight:bold;">${Req === Infinity ? '∞' : Req.toFixed(1) + ' Ω'}</span>`;
+
+      topoRuleBanner.innerHTML = `
+        <span style="color:var(--accent); font-weight:bold;">[PARALLEL CONNECTION ENGINE]</span> 
+        &nbsp;|&nbsp; <strong>${prodSumText}</strong><br>
+        • Voltage is Constant across branches: <strong>V₁ = ${V1.toFixed(0)} V | V₂ = ${V2.toFixed(0)} V</strong> (= V_source)<br>
+        • Current Splits at Junction: <strong>I₁ = ${I1.toFixed(2)} A</strong>, <strong>I₂ = ${I2.toFixed(2)} A</strong> ⟶ <strong>Itotal = I₁ + I₂ = ${Itotal.toFixed(2)} A</strong>
+      `;
+    }
+
+    // Telemetry display
+    val1.textContent = V_source + ' V';
+    val2.textContent = Req === Infinity ? '∞ Ω' : Req.toFixed(1) + ' Ω';
+    val3.textContent = Itotal.toFixed(2) + ' A';
+    val4.textContent = Ptotal.toFixed(0) + ' W';
+
+    // Draw the 2D Circuit Schematic
+    drawCircuitSchematic(V_source, R1, R2, Req, Itotal, I1, I2, V1, V2);
+  }
+
+  // Draw 2D Wire schematic & component symbols
+  function drawCircuitSchematic(V_bat, R1, R2, Req, Itotal, I1, I2, V1, V2) {
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Circuit coordinates
+    const leftX = 110;
+    const rightX = w - 110;
+    const topY = 55;
+    const botY = h - 55;
+    const midY = (topY + botY) / 2;
+
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#27354f';
+    ctx.lineJoin = 'round';
+
+    // Battery on left vertical rail
+    ctx.beginPath();
+    ctx.moveTo(leftX, topY);
+    ctx.lineTo(leftX, midY - 26);
+    ctx.moveTo(leftX, midY + 26);
+    ctx.lineTo(leftX, botY);
+    ctx.stroke();
+
+    // Battery Symbol
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 4;
+    // Long positive plate
+    ctx.beginPath();
+    ctx.moveTo(leftX - 18, midY - 10);
+    ctx.lineTo(leftX + 18, midY - 10);
+    ctx.stroke();
+    // Short negative plate
+    ctx.beginPath();
+    ctx.moveTo(leftX - 10, midY + 10);
+    ctx.lineTo(leftX + 10, midY + 10);
+    ctx.stroke();
+
+    // Label Battery
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText(`${V_bat}V`, leftX - 45, midY - 2);
+    ctx.fillStyle = '#10b981';
+    ctx.fillText('+', leftX - 14, midY - 16);
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillText('-', leftX - 14, midY + 24);
+
+    // Bottom Return Wire
+    ctx.strokeStyle = '#27354f';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(leftX, botY);
+    ctx.lineTo(rightX, botY);
+    ctx.stroke();
+
+    if (topoType === 'series') {
+      // SERIES LAYOUT: Battery -> Switch 1 -> R1 -> Switch 2 -> R2 -> Return
+      const comp1X = leftX + (rightX - leftX) * 0.35;
+      const comp2X = leftX + (rightX - leftX) * 0.75;
+
+      // Top rail segments
+      ctx.beginPath();
+      ctx.moveTo(leftX, topY);
+      ctx.lineTo(comp1X - 60, topY);
+      ctx.moveTo(comp1X + 60, topY);
+      ctx.lineTo(comp2X - 60, topY);
+      ctx.moveTo(comp2X + 60, topY);
+      ctx.lineTo(rightX, topY);
+      ctx.lineTo(rightX, botY);
+      ctx.stroke();
+
+      // Switches & Load 1 & 2
+      drawSwitch(comp1X - 45, topY, sw1Closed, 'Sw1');
+      drawLoad(comp1X, topY, R1, I1, V1, viewMode === 'appliances' ? 'TV' : 'R1', 1);
+
+      drawSwitch(comp2X - 45, topY, sw2Closed, 'Sw2');
+      drawLoad(comp2X, topY, R2, I2, V2, viewMode === 'appliances' ? 'FRIDGE' : 'R2', 2);
+
+      // Animate electrons in a single loop
+      if (sw1Closed && sw2Closed && Itotal > 0) {
+        animateSeriesElectrons(leftX, rightX, topY, botY, Itotal);
+      }
+
+    } else {
+      // PARALLEL LAYOUT: Top rail splits into Branch 1 (top rail) and Branch 2 (middle rail)
+      const junctionLeftX = leftX + 130;
+      const junctionRightX = rightX - 130;
+      const branch1Y = topY + 20;
+      const branch2Y = botY - 50;
+
+      // Main trunk lines
+      ctx.beginPath();
+      ctx.moveTo(leftX, topY);
+      ctx.lineTo(junctionLeftX, topY);
+      // Right collector trunk
+      ctx.moveTo(junctionRightX, topY);
+      ctx.lineTo(rightX, topY);
+      ctx.lineTo(rightX, botY);
+      ctx.stroke();
+
+      // Branch 1 (Upper Path)
+      ctx.beginPath();
+      ctx.moveTo(junctionLeftX, topY);
+      ctx.lineTo(junctionLeftX, branch1Y);
+      ctx.lineTo(junctionRightX, branch1Y);
+      ctx.lineTo(junctionRightX, topY);
+      ctx.stroke();
+
+      // Branch 2 (Lower Path)
+      ctx.beginPath();
+      ctx.moveTo(junctionLeftX, topY);
+      ctx.lineTo(junctionLeftX, branch2Y);
+      ctx.lineTo(junctionRightX, branch2Y);
+      ctx.lineTo(junctionRightX, topY);
+      ctx.stroke();
+
+      // Junction Nodes (Dots)
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(junctionLeftX, topY, 5, 0, Math.PI*2);
+      ctx.arc(junctionRightX, topY, 5, 0, Math.PI*2);
+      ctx.fill();
+
+      // Labels for Junction Nodes
+      ctx.font = 'bold 9px monospace';
+      ctx.fillText('NODE A (Split)', junctionLeftX - 35, topY - 10);
+      ctx.fillText('NODE B (Merge)', junctionRightX - 35, topY - 10);
+
+      const midBranchX = (junctionLeftX + junctionRightX) / 2;
+
+      // Draw switch & load for branch 1
+      drawSwitch(junctionLeftX + 45, branch1Y, sw1Closed, 'Sw1');
+      drawLoad(midBranchX + 15, branch1Y, R1, I1, V1, viewMode === 'appliances' ? 'TV' : 'R1', 1);
+
+      // Draw switch & load for branch 2
+      drawSwitch(junctionLeftX + 45, branch2Y, sw2Closed, 'Sw2');
+      drawLoad(midBranchX + 15, branch2Y, R2, I2, V2, viewMode === 'appliances' ? 'FRIDGE' : 'R2', 2);
+
+      // Animate branching parallel electrons
+      animateParallelElectrons(leftX, rightX, topY, botY, junctionLeftX, junctionRightX, branch1Y, branch2Y, I1, I2, Itotal);
+    }
+  }
+
+  // Draw single knife switch on wire
+  function drawSwitch(x, y, isClosed, label) {
+    ctx.save();
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(x - 12, y, 3.5, 0, Math.PI*2);
+    ctx.arc(x + 12, y, 3.5, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = isClosed ? '#10b981' : '#f43f5e';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x - 12, y);
+    if (isClosed) {
+      ctx.lineTo(x + 12, y);
+    } else {
+      ctx.lineTo(x + 6, y - 16); // lever opened up
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Resistor Box or Fancy Appliance
+  function drawLoad(x, y, R, I, V, label, id) {
+    ctx.save();
+    const isLive = I > 0.001;
+
+    if (viewMode === 'resistors') {
+      // Classic IEC Zig-Zag / Box Resistor
+      ctx.fillStyle = isLive ? '#1e293b' : '#0f172a';
+      ctx.strokeStyle = isLive ? (id === 1 ? '#38bdf8' : '#a855f7') : '#475569';
+      ctx.lineWidth = 2.5;
+
+      ctx.beginPath();
+      ctx.roundRect(x - 30, y - 18, 60, 36, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y - 2);
+
+      ctx.fillStyle = isLive ? '#38bdf8' : '#64748b';
+      ctx.font = '9px monospace';
+      ctx.fillText(`${R}Ω | ${V.toFixed(0)}V`, x, y + 11);
+    } else {
+      // APPLIANCE MODE: TV or Refrigerator Box
+      const power = V * I;
+      ctx.fillStyle = isLive ? '#152033' : '#0a0f18';
+      ctx.strokeStyle = isLive ? (id === 1 ? '#38bdf8' : '#10b981') : '#334155';
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.roundRect(x - 42, y - 24, 84, 48, 8);
+      ctx.fill();
+      ctx.stroke();
+
+      if (isLive) {
+        // Glow effect
+        ctx.shadowColor = id === 1 ? '#38bdf8' : '#10b981';
+        ctx.shadowBlur = Math.min(20, 5 + power * 0.015);
+      }
+
+      ctx.textAlign = 'center';
+      if (id === 1) {
+        ctx.font = '14px sans-serif';
+        ctx.fillText('📺 OLED TV', x, y - 5);
+      } else {
+        ctx.font = '14px sans-serif';
+        ctx.fillText('🧊 FRIDGE', x, y - 5);
+      }
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = isLive ? '#e2e8f0' : '#475569';
+      ctx.font = 'bold 9px monospace';
+      ctx.fillText(`${power.toFixed(0)}W (${I.toFixed(1)}A)`, x, y + 14);
+    }
+    ctx.restore();
+  }
+
+  // Series Particle Loop
+  function animateSeriesElectrons(leftX, rightX, topY, botY, I) {
+    const speed = Math.min(0.012, Math.max(0.001, I * 0.0012));
+    const perimeter = (rightX - leftX) * 2 + (botY - topY) * 2;
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 5;
+
+    topoParticles.forEach(p => {
+      p.t = (p.t + speed * p.speedOffset) % 1.0;
+      let dist = p.t * perimeter;
+      let px, py;
+
+      // 1. Top wire (left to right)
+      if (dist < (rightX - leftX)) {
+        px = leftX + dist;
+        py = topY;
+      }
+      // 2. Right wire (top to bottom)
+      else if (dist < (rightX - leftX) + (botY - topY)) {
+        px = rightX;
+        py = topY + (dist - (rightX - leftX));
+      }
+      // 3. Bottom wire (right to left)
+      else if (dist < 2 * (rightX - leftX) + (botY - topY)) {
+        px = rightX - (dist - ((rightX - leftX) + (botY - topY)));
+        py = botY;
+      }
+      // 4. Left wire (bottom to top)
+      else {
+        px = leftX;
+        py = botY - (dist - (2 * (rightX - leftX) + (botY - topY)));
+      }
+
+      ctx.beginPath();
+      ctx.arc(px, py, 3.2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.shadowBlur = 0;
+  }
+
+  // Parallel Particle Branching
+  function animateParallelElectrons(leftX, rightX, topY, botY, jLeft, jRight, b1Y, b2Y, I1, I2, Itotal) {
+    if (Itotal <= 0.001) return;
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 5;
+
+    const baseSpeed = Math.min(0.012, Math.max(0.001, Itotal * 0.0008));
+
+    topoParticles.forEach(p => {
+      // Deterministically route through active branches
+      let activeBranch = p.branch;
+      if (!sw1Closed && sw2Closed) activeBranch = 2;
+      if (sw1Closed && !sw2Closed) activeBranch = 1;
+
+      // Speed in branch scales with branch current
+      const branchSpeedFactor = activeBranch === 1 ? (I1 / (Itotal || 1)) : (I2 / (Itotal || 1));
+      p.t = (p.t + baseSpeed * (0.6 + branchSpeedFactor * 0.8)) % 1.0;
+
+      let px, py;
+      const targetBranchY = activeBranch === 1 ? b1Y : b2Y;
+
+      // Timeline along the parallel network
+      if (p.t < 0.20) {
+        // Battery left to Junction Left
+        px = leftX + (p.t / 0.20) * (jLeft - leftX);
+        py = topY;
+      } else if (p.t < 0.28) {
+        // Diving down to branch altitude
+        const frac = (p.t - 0.20) / 0.08;
+        px = jLeft;
+        py = topY + frac * (targetBranchY - topY);
+      } else if (p.t < 0.58) {
+        // Traveling across the branch load
+        const frac = (p.t - 0.28) / 0.30;
+        px = jLeft + frac * (jRight - jLeft);
+        py = targetBranchY;
+      } else if (p.t < 0.66) {
+        // Merging up to Junction Right
+        const frac = (p.t - 0.58) / 0.08;
+        px = jRight;
+        py = targetBranchY - frac * (targetBranchY - topY);
+      } else if (p.t < 0.74) {
+        // Junction Right to Right vertical rail
+        const frac = (p.t - 0.66) / 0.08;
+        px = jRight + frac * (rightX - jRight);
+        py = topY;
+      } else if (p.t < 0.84) {
+        // Down right rail
+        const frac = (p.t - 0.74) / 0.10;
+        px = rightX;
+        py = topY + frac * (botY - topY);
+      } else if (p.t < 0.94) {
+        // Return across bottom rail
+        const frac = (p.t - 0.84) / 0.10;
+        px = rightX - frac * (rightX - leftX);
+        py = botY;
+      } else {
+        // Up through battery back to top
+        const frac = (p.t - 0.94) / 0.06;
+        px = leftX;
+        py = botY - frac * (botY - topY);
+      }
+
+      ctx.beginPath();
+      ctx.arc(px, py, 3.2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.shadowBlur = 0;
+  }
+
+  // Event Listeners for smooth reactivity
   ['input', 'change'].forEach(evt => {
     slOhmV.addEventListener(evt, () => {});
     slOhmR.addEventListener(evt, () => {});
     slWireL.addEventListener(evt, () => {});
     slWireA.addEventListener(evt, () => {});
+    slTopoV.addEventListener(evt, () => {});
+    slTopoR1.addEventListener(evt, () => {});
+    slTopoR2.addEventListener(evt, () => {});
     document.querySelectorAll('input[name="mat"]').forEach(r => r.addEventListener(evt, () => {}));
   });
 
+  // Init
+  setTab('topology');
   render();
 </script>
 </body>
